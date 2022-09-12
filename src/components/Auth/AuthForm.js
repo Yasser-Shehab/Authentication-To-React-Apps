@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 
 import classes from "./AuthForm.module.css";
 
+const apiKey = "AIzaSyCHuTMn_qLvIiNPcYAFifBrYjInGEUorlQ";
+
 const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -13,12 +15,47 @@ const AuthForm = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
+
+    const enteredEmail = emailInputRef.current.value;
+    const enteredPassword = passwordInputRef.current.value;
+
+    //optional Add validation
+    if (enteredEmail.trim().length === 0 || enteredPassword.trim().length === 0) {
+      return;
+    }
+
+    if (isLogin) {
+    } else {
+      fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
+        method: "POST",
+        body: JSON.stringify({
+          email: enteredEmail,
+          password: enteredPassword,
+          returnSecureToken: true,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => {
+        if (res.ok) {
+          //...
+        } else {
+          res.json().then((data) => {
+            let errorMessage = "Authentication Failed";
+            if (data && data.error && data.error.message) {
+              errorMessage = data.error.message;
+            }
+            alert(errorMessage);
+          });
+        }
+      });
+    }
   };
 
   return (
     <section className={classes.auth}>
       <h1>{isLogin ? "Login" : "Sign Up"}</h1>
-      <form>
+      <form onSubmit={submitHandler}>
         <div className={classes.control}>
           <label htmlFor="email">Your Email</label>
           <input type="email" id="email" required ref={emailInputRef} />
