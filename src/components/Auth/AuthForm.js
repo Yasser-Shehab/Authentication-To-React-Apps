@@ -8,7 +8,7 @@ const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const [isLogin, setIsLogin] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
@@ -23,7 +23,7 @@ const AuthForm = () => {
     if (enteredEmail.trim().length === 0 || enteredPassword.trim().length === 0) {
       return;
     }
-
+    setIsLoading(true);
     if (isLogin) {
     } else {
       fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
@@ -37,6 +37,7 @@ const AuthForm = () => {
           "Content-Type": "application/json",
         },
       }).then((res) => {
+        setIsLoading(false);
         if (res.ok) {
           //...
         } else {
@@ -65,7 +66,7 @@ const AuthForm = () => {
           <input type="password" id="password" required ref={passwordInputRef} />
         </div>
         <div className={classes.actions}>
-          <button>{isLogin ? "Login" : "Create Account"}</button>
+          {!isLoading ? <button>{isLogin ? "Login" : "Create Account"}</button> : <p>Loading...</p>}
           <button type="button" className={classes.toggle} onClick={switchAuthModeHandler}>
             {isLogin ? "Create new account" : "Login with existing account"}
           </button>
